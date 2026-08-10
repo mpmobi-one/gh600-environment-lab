@@ -1,0 +1,21 @@
+name: Environment Gate
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  gated-job:
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Confirm gated execution
+        run: echo "environment gate passed"
+
+      - name: Verify environment secret is available
+        env:
+          DEMO_SECRET: ${{ secrets.GH600_DEMO }}
+        run: test -n "$DEMO_SECRET"
