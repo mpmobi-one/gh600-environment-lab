@@ -1,0 +1,39 @@
+name: Durable State Demo
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-state:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Read and update durable state
+        run: |
+          COUNT=$(jq '.run_count' state/agent-state.json)
+          NEXT=$((COUNT + 1))
+
+          jq \
+            --argjson count "$NEXT" \
+            '.run_count = $count | .last_status = "completed"' \
+            state/agent-state.json > state/tmp.json
+
+          mv state/tmp.json state/agent-state.json
+
+          echo "Previous count: $COUNT"
+          echo "New count: $NEXT"
+
+      - name: Persist state
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add state/agent-state.json
+          git commit -m "Persist workflow state" || exit 0
+          git push
