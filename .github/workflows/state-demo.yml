@@ -26,9 +26,6 @@ jobs:
           COUNT=$(jq '.run_count' state/agent-state.json)
           echo "Read count: $COUNT"
 
-          # Deliberately widen the race window.
-          sleep 30
-
           NEXT=$((COUNT + 1))
 
           jq \
