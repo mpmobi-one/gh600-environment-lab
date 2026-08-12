@@ -33,7 +33,12 @@ jobs:
 
           jq \
             --argjson count "$NEXT" \
-            '.run_count = $count | .last_status = "completed"' \
+            '
+              .run_count = $count
+              | .last_status = "completed"
+              | .history += [$count]
+              | .history = .history[-3:]
+            ' \
             state/agent-state.json > state/tmp.json
 
           mv state/tmp.json state/agent-state.json
